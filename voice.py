@@ -1,32 +1,50 @@
-import speech_recognition as sr
-import pyttsx3
-import threading
+try:
+    import speech_recognition as sr
+    import pyttsx3
+    import threading
 
-# Initialize engine
-engine = pyttsx3.init()
-engine_lock = threading.Lock()
+    VOICE_AVAILABLE = True
+
+    try:
+        engine = pyttsx3.init()
+    except Exception:
+        engine = None
+        VOICE_AVAILABLE = False
+
+    engine_lock = threading.Lock()
+
+except Exception:
+    VOICE_AVAILABLE = False
+    engine = None
+
 
 # ===============================
 # 🔊 VOICE CONFIGURATION
 # ===============================
 def set_voice(style="default", rate=180, volume=1.0):
-    voices = engine.getProperty('voices')
 
-    # Select voice
+    if not VOICE_AVAILABLE or engine is None:
+        return
+
+    voices = engine.getProperty("voices")
+
     if style == "female" and len(voices) > 1:
-        engine.setProperty('voice', voices[1].id)
+        engine.setProperty("voice", voices[1].id)
     else:
-        engine.setProperty('voice', voices[0].id)
+        engine.setProperty("voice", voices[0].id)
 
-    # Set properties
-    engine.setProperty('rate', rate)      # Speed
-    engine.setProperty('volume', volume)  # Volume (0.0 to 1.0)
+    engine.setProperty("rate", rate)
+    engine.setProperty("volume", volume)
 
 
 # ===============================
-# 🔊 SPEAK FUNCTION
+# 🔊 SPEAK
 # ===============================
 def speak(text):
+
+    if not VOICE_AVAILABLE or engine is None:
+        return
+
     if not text:
         return
 
@@ -35,56 +53,42 @@ def speak(text):
             engine.say(text)
             engine.runAndWait()
 
-    t = threading.Thread(target=run)
-    t.start()
+    threading.Thread(target=run).start()
 
 
 # ===============================
 # 🛑 STOP SPEAKING
 # ===============================
 def stop_speaking():
+
+    if not VOICE_AVAILABLE or engine is None:
+        return
+
     with engine_lock:
         engine.stop()
 
 
 # ===============================
-# 🎤 LISTEN FUNCTION
+# 🎤 LISTEN
 # ===============================
 def listen(timeout=5, phrase_time_limit=10):
+
+    if not VOICE_AVAILABLE:
+        return ""
+
     recognizer = sr.Recognizer()
 
     try:
         with sr.Microphone() as source:
-            print("🎤 Listening...")
-
-            # Adjust for ambient noise
             recognizer.adjust_for_ambient_noise(source, duration=1)
 
             audio = recognizer.listen(
                 source,
                 timeout=timeout,
-                phrase_time_limit=phrase_time_limit
+                phrase_time_limit=phrase_time_limit,
             )
 
-        print("🧠 Processing...")
+        return recognizer.recognize_google(audio)
 
-        text = recognizer.recognize_google(audio)
-        print("You said:", text)
-
-        return text
-
-    except sr.WaitTimeoutError:
-        print("⏱ No speech detected")
-        return ""
-
-    except sr.UnknownValueError:
-        print("🤷 Could not understand audio")
-        return ""
-
-    except sr.RequestError:
-        print("❌ Speech service error")
-        return ""
-
-    except Exception as e:
-        print("⚠ Error:", e)
+    except Exception:
         return ""

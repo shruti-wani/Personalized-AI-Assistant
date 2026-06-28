@@ -13,7 +13,7 @@ from agents.reminder_agent import ReminderAgent
 from agents.auto_planner import AutoPlanner
 
 # Voice
-from voice import listen, speak, set_voice
+# Voice disabled for Streamlit# Voice disabled for Streamlit
 
 # Initialize agents
 planner = PlannerAgent()
@@ -47,26 +47,11 @@ with tab3:
     st.header("⚙️ Settings")
 
     st.subheader("🎤 Voice Control")
-
-    if "voice_enabled" not in st.session_state:
-        st.session_state.voice_enabled = True
-
-    if "voice_input" not in st.session_state:
-        st.session_state.voice_input = False
-
-    st.session_state.voice_enabled = st.checkbox(
-        "🔊 Enable Voice Output", value=st.session_state.voice_enabled
-    )
-
-    st.session_state.voice_input = st.checkbox(
-        "🎤 Enable Voice Input", value=st.session_state.voice_input
-    )
-
-    style = st.selectbox("Voice Style", ["default", "female"])
-    speed = st.slider("Speech Speed", 100, 250, 180)
-    volume = st.slider("Volume", 0.0, 1.0, 1.0)
-
-    set_voice(style, speed, volume)
+    
+    st.info("Voice features are disabled in the Streamlit version.")
+    
+    st.session_state.voice_enabled = False
+    st.session_state.voice_input = False
 
 # ===============================
 # 🤖 CHAT TAB
@@ -85,14 +70,10 @@ with tab1:
     triggered = reminder.check_reminders()
     for msg, t in triggered:
         st.toast(f"🔔 {msg}")
-        if st.session_state.voice_enabled:
-            speak(msg)
+        pass
 
     # 🎤 Input
-    if st.session_state.voice_input and st.button("🎤 Speak"):
-        user_input = listen()
-    else:
-        user_input = st.chat_input("Ask Cortex anything...")
+    user_input = st.chat_input("Ask Cortex anything...")
 
     # Show history
     for m in st.session_state.messages:
@@ -151,8 +132,7 @@ with tab1:
         with st.chat_message("assistant"):
             st.write(response)
 
-        if st.session_state.voice_enabled:
-            speak(response)
+        pass
 
         st.session_state.messages.append({"role": "assistant", "content": response})
 
