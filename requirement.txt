@@ -1,0 +1,6 @@
+torch
+transformers==4.37.2
+speechrecognition
+pyttsx3
+schedule
+python-dotenv
