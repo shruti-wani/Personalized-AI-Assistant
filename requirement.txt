@@ -1,6 +1,15 @@
+streamlit
+openai
+python-dotenv
+
 torch
 transformers==4.37.2
-speechrecognition
+
+SpeechRecognition
 pyttsx3
 schedule
-python-dotenv
+
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client
